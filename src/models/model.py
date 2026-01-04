@@ -77,7 +77,7 @@ def build_mlp_head(
     return nn.Sequential(*layers)
 def addnewhead(model: nn.Module, dims: list[int], num_classes: int,
                dropout: float = 0.5, use_bn=True):
-    in_features = model.head.in_features
+    in_features = model.head[0].in_features
 
     new_dims = [in_features] + dims + [num_classes]  
 
