@@ -52,16 +52,34 @@ def loadpretrainedmodel(weights_path:str,device:torch.device)->torch.nn.Module:
     model.load_state_dict(state)
     model=model.to(device)
     return model
-def add_new_head(model:torch.nn.Module,num_classes:int,head:List[int],dropout:List[int])->None:
-    assert len(dropout) == len(head), "dropout and head must have same length"
-    modules=[]
-    in_features=model.head[0].in_features
-    modules.append(nn.Linear(in_features,head[0]))
-    modules.append(nn.ReLU())
-    modules.append(nn.Dropout(dropout[0]))
-    for i in range(len(head)-1):
-        modules.append(nn.Linear(head[i],head[i+1]))
-        modules.append(nn.ReLU())
-        modules.append(nn.Dropout(dropout[i+1]))
-    modules.append(nn.Linear(head[-1],num_classes))
-    model.head=nn.Sequential(*modules)
+
+def build_mlp_head(
+    dims,
+    dropout=0.5,
+    use_bn=True
+):
+    layers = []
+
+    for i in range(len(dims) - 1):
+        in_dim = dims[i]
+        out_dim = dims[i + 1]
+
+        layers.append(nn.Linear(in_dim, out_dim))
+
+        # Don't add BN/ReLU/Dropout after final layer
+        if i < len(dims) - 2:
+            if use_bn:
+                layers.append(nn.BatchNorm1d(out_dim))
+            layers.append(nn.ReLU(inplace=True))
+            if dropout > 0:
+                layers.append(nn.Dropout(dropout))
+
+    return nn.Sequential(*layers)
+def addnewhead(model: nn.Module, dims: list[int], num_classes: int,
+               dropout: float = 0.5, use_bn=True):
+    in_features = model.head.in_features
+
+    new_dims = [in_features] + dims + [num_classes]  
+
+    model.head = build_mlp_head(new_dims, dropout, use_bn)
+    return model
