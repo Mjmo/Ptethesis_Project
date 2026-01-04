@@ -24,6 +24,9 @@ def get_and_split(path:str, testsize:float=0.2)->Tuple[Subset,Subset]:
     val_data   = Subset(dataset, val_idx)
 
     return train_data, val_data
+def get_minority_classes(targets:List[int], threshold:int=50)->List[int]:
+    count = Counter(targets)
+    return [cls for cls, n in count.items() if n < threshold]
 class OversampledAugmentedDataset(Dataset):
     def __init__(self, base_dataset, min_samples, minority_classes, augmentations):
         self.base_dataset = base_dataset
