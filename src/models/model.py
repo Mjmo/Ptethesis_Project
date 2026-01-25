@@ -47,7 +47,7 @@ class TorchVisionNet(nn.Module):
             x = getattr(F, self.last_activation)(x, dim=1)
         return x
 def loadpretrainedmodel(weights_path:str,device:torch.device)->torch.nn.Module:
-    model=TorchVisionNet(name="resnet18",head=[256,128],num_classes=50,dropout=[(1,0.5)])
+    model=TorchVisionNet(name="resnet18",head=[256,128],num_classes=50,dropout=[(1,0.5)],weights=None)
     state=torch.load(weights_path,map_location=device)
     model.load_state_dict(state)
     model=model.to(device)
