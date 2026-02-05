@@ -28,12 +28,11 @@ def freeze_all_layers(
                 param.requires_grad = True
             
             
-def get_weights(dataset:torch.utils.data.Dataset)->torch.tensor:
-      all_labels=[label for _,label in dataset]
-      counts=Counter(all_labels)
-      print(counts)
-      num_classes=len(counts)
-      print(counts)
-      total=sum(counts.values())
-      class_weights = torch.tensor([total / counts[i] for i in range(num_classes)], dtype=torch.float32)
-      return class_weights
+
+def compute_class_weights(dataset:torch.utils.data.Dataset):
+    targets = torch.tensor(dataset.targets)
+    counts = torch.bincount(targets)
+    total = targets.numel()
+    class_weights = total / counts.float()
+
+    return class_weights

@@ -3,9 +3,9 @@ from torchvision import transforms
 import torch
 from torch.utils.data import DataLoader
 from typing import Callable,Tuple
-
+from torchvision.datasets import ImageFolder
 def get_data_loader(
-    path:str,
+    dataset:torch.utils.data.Dataset,
     min_samples:int,
     train_aug:Callable,
     valid_aug:Callable,
@@ -13,7 +13,7 @@ def get_data_loader(
     batch_size:int,
     test_size:float=0.1
 )->Tuple[DataLoader,DataLoader]:
-    trainset, valset = get_and_split(path, test_size)
+    trainset, valset = get_and_split(dataset, test_size)
 
     train_targets = [trainset.dataset.targets[i] for i in trainset.indices]
 
@@ -29,7 +29,7 @@ def get_data_loader(
         augmentations=train_aug
     )
 
-    valset.dataset.transform = valid_aug
+   
 
     train_loader = DataLoader(
         train_dataset,
@@ -37,6 +37,7 @@ def get_data_loader(
         shuffle=True,
         num_workers=num_workers
     )
+    valset.dataset.transform = valid_aug
 
     val_loader = DataLoader(
         valset,
@@ -46,3 +47,6 @@ def get_data_loader(
     )
 
     return train_loader, val_loader
+def get_dataset(folderpath:str):
+    dataset=ImageFolder(folderpath,transform=None)
+    return dataset

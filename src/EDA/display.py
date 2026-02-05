@@ -3,6 +3,7 @@ import torchvision
 import numpy as np
 import torch
 from torchvision.transforms import ToPILImage
+import os
 def unnormalize(img, mean, std):
     mean = torch.tensor(mean).view(3, 1, 1)
     std = torch.tensor(std).view(3, 1, 1)
@@ -34,3 +35,23 @@ def compute_mean_std(dataloader,device):
     mean=channel_sum/num_pixel
     std = (channel_squared_sum / num_pixel - mean ** 2).sqrt()
     return mean,std
+def get_class_names(dataset_path:str):
+    return sorted(list(os.listdir(dataset_path)))
+def plot_class_distribution(dataset:torch.utils.data.Dataset,classnames=None):
+    labels=[label for _,label in dataset]
+    counts=torch.bincount(torch.tensor(labels))
+    x=range(len(counts))
+    y=counts.tolist()
+    if classnames:
+        y=classnames
+    plt.figure(figsize=(8, 5))
+    plt.bar(x, y)
+    plt.xlabel("Class")
+    plt.ylabel("Number of Samples")
+    plt.title("Class Distribution")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+
+

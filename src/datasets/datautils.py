@@ -4,12 +4,17 @@ from sklearn.model_selection import StratifiedShuffleSplit
 from torch.utils.data import Subset,Dataset
 from collections import Counter
 import random
+import torch
 from PIL import Image
 from torchvision.transforms import ToPILImage
 from typing import Tuple,List
 random.seed(42)
-def get_and_split(path:str, testsize:float=0.2)->Tuple[Subset,Subset]:
-    dataset = ImageFolder(path, transform=None)
+"""
+    Get the orginal dataset that contais all images:
+    - Stratified splitting of the dataset into train and test so that the proportion of each
+    class stays the same in trainset and in testset
+    """
+def get_and_split(dataset:torch.utils.data.Dataset, testsize:float=0.2)->Tuple[Subset,Subset]:
 
     targets = [label for _, label in dataset.samples]
     indices = np.arange(len(targets))
@@ -24,6 +29,10 @@ def get_and_split(path:str, testsize:float=0.2)->Tuple[Subset,Subset]:
     val_data   = Subset(dataset, val_idx)
 
     return train_data, val_data
+"""
+   Get classnames that have less samples than the threshold so we can augment 
+   the classes in the trainset who has few samples
+    """
 def get_minority_classes(targets:List[int], threshold:int=50)->List[int]:
     count = Counter(targets)
     return [cls for cls, n in count.items() if n < threshold]
