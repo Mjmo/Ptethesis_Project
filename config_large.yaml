@@ -1,0 +1,6 @@
+data:
+  train_data_path: "/content/drive/MyDrive/IOW_annotated_images_202601"
+  test_size: 0.2
+  batch_size: 32
+  min_samples: 100
+  
