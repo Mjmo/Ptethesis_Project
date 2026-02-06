@@ -38,10 +38,9 @@ def compute_mean_std(dataloader,device):
     return mean,std
 def get_class_names(dataset_path:str):
     return sorted(list(os.listdir(dataset_path)))
-def plot_class_distribution(dataset:torch.utils.data.Dataset,device:torch.device,classnames=None,):
-    counts=torch.bincount(torch.tensor(dataset.targets).to(device)).to(device)
-    if classnames:
-        x=classnames
+def plot_class_distribution(dataset:torch.utils.data.Dataset,classnames=None,):
+    counts=torch.bincount(torch.tensor(dataset.targets))
+    x=classnames if classnames else range(len(counts))
     y=counts.tolist()
     plt.figure(figsize=(8, 5))
     plt.bar(x, y)
