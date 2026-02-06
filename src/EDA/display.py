@@ -48,7 +48,7 @@ def plot_class_distribution(dataset:torch.utils.data.Dataset,classnames=None,):
     
     y=counts.tolist()
     plt.figure(figsize=(8, 5))
-    plt.bar(x, y)
+    plt.bar(x_pos, y)
     plt.xlabel("Class")
     plt.ylabel("Number of Samples")
     plt.title("Class Distribution")
