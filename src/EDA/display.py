@@ -64,7 +64,7 @@ def plot_dataset_samples_randomly(dataset:torch.utils.data.Dataset,cls:Dict[int,
     labels=[]
     random.seed(seed)
     random_indicies=random.sample(range(len(dataset)),k=num_images)
-    for i in range(random_indicies):
+    for i in random_indicies:
         img,label=dataset[i]
         if not isinstance(img,Image.Image):
            img=torchvision.transforms.ToPILImage()(img)
