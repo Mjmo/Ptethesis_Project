@@ -69,7 +69,7 @@ def plot_dataset_samples(dataset:torch.utils.data.Dataset,cls:dict,num_images=8,
     ncol=num_rows
     num_rows = (num_images + ncol - 1) // ncol
     plt.figure(figsize=figsize)
-    for i,(image,label) in enumerate(zip(image,label)):
+    for i,(image,label) in enumerate(zip(images,label)):
         plt.subplot(num_rows,ncol,i+1)
         plt.imshow(image)
         plt.title(cls[label])
