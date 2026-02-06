@@ -40,14 +40,19 @@ def get_class_names(dataset_path:str):
     return sorted(list(os.listdir(dataset_path)))
 def plot_class_distribution(dataset:torch.utils.data.Dataset,classnames=None,):
     counts=torch.bincount(torch.tensor(dataset.targets))
-    x=classnames if classnames else range(len(counts))
+    x_pos=range(len(counts))
+    if classnames:
+        label_for_ticks=classnames
+    else:
+        label_for_ticks=[str(i) for i in x_pos ]
+    
     y=counts.tolist()
     plt.figure(figsize=(8, 5))
     plt.bar(x, y)
     plt.xlabel("Class")
     plt.ylabel("Number of Samples")
     plt.title("Class Distribution")
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=45,ticks=x_pos,labels=label_for_ticks)
     plt.tight_layout()
     plt.show()
 
@@ -63,7 +68,7 @@ def plot_dataset_samples(dataset:torch.utils.data.Dataset,cls:dict,num_images=8,
         labels.append(labels)
     ncol=num_rows
     num_rows = (num_images + ncol - 1) // ncol
-    plt.figure(figsize)
+    plt.figure(figsize=figsize)
     for i,(image,label) in enumerate(zip(image,label)):
         plt.subplot(num_rows,ncol,i+1)
         plt.imshow(image)
