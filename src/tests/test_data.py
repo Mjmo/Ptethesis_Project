@@ -10,7 +10,7 @@ from mydata.gettraintest import get_data_loader, get_dataset
     ]
 )
 def test_data_leakage(folder_path, batchsize, testsize, minsamples):
-    dataset = get_dataset(folder_path=folder_path)
+    dataset = get_dataset(folder_path)
 
     train_loader, valid_loader = get_data_loader(
         dataset,
