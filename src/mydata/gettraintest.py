@@ -1,9 +1,10 @@
-from datasets.datautils import OversampledAugmentedDataset,get_and_split,get_minority_classes
+from mydata.datautils import OversampledAugmentedDataset,get_and_split,get_minority_classes
 from torchvision import transforms
 import torch
 from torch.utils.data import DataLoader
 from typing import Callable,Tuple
 from torchvision.datasets import ImageFolder
+from copy import deepcopy
 def get_data_loader(
     dataset:torch.utils.data.Dataset,
     min_samples:int,
@@ -37,10 +38,12 @@ def get_data_loader(
         shuffle=True,
         num_workers=num_workers
     )
-    valset.dataset.transform = valid_aug
+    val_dataset=deepcopy(valset.dataset)
+    val_dataset.transform=valid_aug
+    val_subset = torch.utils.data.Subset(val_dataset, valset.indices)
 
     val_loader = DataLoader(
-        valset,
+        val_subset,
         batch_size=batch_size,
         shuffle=False,
         num_workers=num_workers

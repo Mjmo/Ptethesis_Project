@@ -15,8 +15,14 @@ random.seed(42)
     class stays the same in trainset and in testset
     """
 def get_and_split(dataset:torch.utils.data.Dataset, testsize:float=0.2)->Tuple[Subset,Subset]:
-
-    targets = [label for _, label in dataset.samples]
+    if not isinstance(dataset,ImageFolder):
+        raise TypeError("We expects to get an Imagefolder")
+    if hasattr(dataset,"targets"):
+        targets = dataset.targets
+    elif hasattr(dataset,"samples"):
+        targets = [y for _, y in dataset.samples]
+    else:
+        raise TypeError("The dataset must have either target or sample attributes")
     indices = np.arange(len(targets))
     targets_np = np.array(targets)
 
@@ -37,7 +43,7 @@ def get_minority_classes(targets:List[int], threshold:int=50)->List[int]:
     count = Counter(targets)
     return [cls for cls, n in count.items() if n < threshold]
 class OversampledAugmentedDataset(Dataset):
-    def __init__(self, base_dataset, min_samples, minority_classes, augmentations):
+    def __init__(self, base_dataset:Dataset, min_samples:int, minority_classes:list[int], augmentations:callable):
         self.base_dataset = base_dataset
         self.augmentations = augmentations
 
@@ -68,10 +74,6 @@ class OversampledAugmentedDataset(Dataset):
             img, label = self.base_dataset.dataset[self.indices[idx]]
         else:
             img, label = self.base_dataset[self.indices[idx]]
-
-    # Convert to PIL if not already
-        if not isinstance(img, Image.Image):
-            img = ToPILImage()(img)
-
-        img = self.augmentations(img)
+        if self.augmentations:
+            img = self.augmentations(img)
         return img, label
