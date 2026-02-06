@@ -52,7 +52,7 @@ def plot_class_distribution(dataset:torch.utils.data.Dataset,classnames=None,):
     plt.xlabel("Class")
     plt.ylabel("Number of Samples")
     plt.title("Class Distribution")
-    plt.xticks(rotation=45,ticks=x_pos,labels=label_for_ticks)
+    plt.xticks(rotation=90,ticks=x_pos,labels=label_for_ticks)
     plt.tight_layout()
     plt.show()
 
@@ -69,7 +69,7 @@ def plot_dataset_samples(dataset:torch.utils.data.Dataset,cls:dict,num_images=8,
     ncol=num_rows
     num_rows = (num_images + ncol - 1) // ncol
     plt.figure(figsize=figsize)
-    for i,(image,label) in enumerate(zip(images,label)):
+    for i,(image,label) in enumerate(zip(images,labels)):
         plt.subplot(num_rows,ncol,i+1)
         plt.imshow(image)
         plt.title(cls[label])
