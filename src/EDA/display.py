@@ -5,6 +5,7 @@ import torch
 from torchvision.transforms import ToPILImage
 import os
 from PIL import Image
+from typing import Dict
 def unnormalize(img, mean, std):
     mean = torch.tensor(mean).view(3, 1, 1)
     std = torch.tensor(std).view(3, 1, 1)
@@ -57,7 +58,7 @@ def plot_class_distribution(dataset:torch.utils.data.Dataset,classnames=None,):
     plt.show()
 
 
-def plot_dataset_samples(dataset:torch.utils.data.Dataset,cls:dict,num_images=8,num_rows=2,figsize=(8,8)):
+def plot_dataset_samples(dataset:torch.utils.data.Dataset,cls:Dict[int,str],num_images=8,num_rows=2,figsize=(8,8)):
     images=[]
     labels=[]
     for i in range(num_images):
@@ -65,7 +66,7 @@ def plot_dataset_samples(dataset:torch.utils.data.Dataset,cls:dict,num_images=8,
         if not isinstance(img,Image.Image):
            img=torchvision.transforms.ToPILImage()(img)
         images.append(img)
-        labels.append(labels)
+        labels.append(label)
     ncol=num_rows
     num_rows = (num_images + ncol - 1) // ncol
     plt.figure(figsize=figsize)
