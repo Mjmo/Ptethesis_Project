@@ -40,10 +40,9 @@ def get_class_names(dataset_path:str):
     return sorted(list(os.listdir(dataset_path)))
 def plot_class_distribution(dataset:torch.utils.data.Dataset,device:torch.device,classnames=None,):
     counts=torch.bincount(torch.tensor(dataset.targets).to(device)).to(device)
-    x=range(len(counts))
-    y=counts.tolist()
     if classnames:
-        y=classnames
+        x=classnames
+    y=counts.tolist()
     plt.figure(figsize=(8, 5))
     plt.bar(x, y)
     plt.xlabel("Class")
