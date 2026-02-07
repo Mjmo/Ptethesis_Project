@@ -5,7 +5,7 @@ data:
   batch_size: 32
   min_samples: 100
 model:
-  pretrained_weights_path: "/content/Ptethesis_Project/best_state.pth"
+  pretrained_weights: "/content/Ptethesis_Project/best_state.pth"
   head_dim: [256,128]
   dropout: 0.5
   num_classes: 43
