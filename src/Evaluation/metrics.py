@@ -1,40 +1,27 @@
 from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
+import seaborn as sns 
 import numpy as np
 import torch
+import tqdm
 import torch.nn.functional as F
 from sklearn.metrics import accuracy_score
 from torch.utils.data import dataloader
-def plot_multi_label_confusion(y_true:np.ndarray,y_predicted:np.ndarray,class_names:list):
-    num_classes = len(class_names)
 
-    for i in range(num_classes):
-        cm = confusion_matrix(
-            y_true[:, i],
-            y_predicted[:, i]
-        )
-
-        plt.figure()
-        plt.imshow(cm)
-        plt.title(f"Confusion Matrix — {class_names[i]}")
-        plt.colorbar()
-        plt.xticks([0, 1], ["0", "1"])
-        plt.yticks([0, 1], ["0", "1"])
-
-        for x in range(2):
-            for y in range(2):
-                plt.text(
-                    y, x,
-                    cm[x, y],
-                    ha="center",
-                    va="center"
-                )
-
-        plt.xlabel("Predicted")
-        plt.ylabel("True")
-        plt.tight_layout()
-        plt.show()
-
+def plot_confusion_matrix(labels,preds,class_names=None,normalize=True,figsize=(6,5)):
+    cm=confusion_matrix(labels,preds)
+    if normalize:
+        cm_to_plot=cm.astype("float")/cm.sum(axis=1)[:,np.newaxis]
+        fmt='.2f'
+    else:
+        cm_to_plot=cm
+        fmt='d'
+    plt.figure(figsize=figsize)
+    sns.heatmap(cm_to_plot,annot=True,fmt=fmt,xticklabels=class_names,yticklabels=class_names)
+    plt.xlabel("predicted")
+    plt.ylabel("true")
+    plt.title("Confusion MAtrix")
+    plt.show()
 def validate_multiclass(model:torch.nn.Module, dataloader:dataloader, criterion:torch.nn.Module, device:dataloader):
     model.eval()
 
@@ -43,7 +30,7 @@ def validate_multiclass(model:torch.nn.Module, dataloader:dataloader, criterion:
     all_labels = []
 
     with torch.no_grad():
-        for inputs, labels in dataloader:
+        for inputs, labels in tqdm.tqdm(dataloader):
             inputs = inputs.to(device)
             labels = labels.to(device)
 

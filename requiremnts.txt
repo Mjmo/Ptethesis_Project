@@ -3,6 +3,7 @@ torchvision
 pandas
 matplotlib
 numpy
-pytorch-lightning
 pytest
 scikit-learn
+tqdm
+seaborn
