@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import torchvision
 import numpy as np
 import torch
-from torchvision.transforms import ToPILImage
 import os
 from PIL import Image
 from typing import Dict
