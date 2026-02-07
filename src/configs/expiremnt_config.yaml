@@ -1,0 +1,14 @@
+seed: 42
+data:
+  train_data_path: "/content/drive/MyDrive/IOW_annotated_images_202601"
+  test_size: 0.2
+  batch_size: 32
+  min_samples: 100
+model:
+  pretrained_weights_path: "/content/Ptethesis_Project/best_state.pth"
+  head_dim: [256,128]
+  dropout: 0.5
+  num_classes: 43
+training:
+  num_epochs: 10
+  save_path: ""
