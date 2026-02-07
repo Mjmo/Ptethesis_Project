@@ -12,3 +12,5 @@ model:
 training:
   num_epochs: 10
   save_path: ""
+  lr_head: 1e-3
+  lr_base: 1e-4
