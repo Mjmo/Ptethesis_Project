@@ -43,10 +43,11 @@ def get_minority_classes(targets:List[int], threshold:int=50)->List[int]:
     count = Counter(targets)
     return [cls for cls, n in count.items() if n < threshold]
 class OversampledAugmentedDataset(Dataset):
-    def __init__(self, base_dataset:Dataset, min_samples:int, minority_classes:list[int], augmentations:callable):
+    def __init__(self, base_dataset:Dataset, min_samples:int, minority_classes:list[int],seed:int ,augmentations:callable):
         self.base_dataset = base_dataset
         self.augmentations = augmentations
-
+        self.seed=seed
+        random.seed(self.seed)
         if isinstance(base_dataset, Subset):
             targets = [base_dataset.dataset.targets[i] for i in base_dataset.indices]
             original_indices = base_dataset.indices
@@ -59,13 +60,15 @@ class OversampledAugmentedDataset(Dataset):
             class_indices.setdefault(label, []).append(idx)
 
         self.indices = []
+        self.targets=[]
         for cls, idxs in class_indices.items():
             if cls in minority_classes:
                 repeats = max(min_samples - len(idxs), 0)
-                self.indices.extend(idxs)
-                self.indices.extend(random.choices(idxs, k=repeats))
+                sampled=idxs+random.choices(idxs,k=repeats)
             else:
-                self.indices.extend(idxs)
+                sampled=idxs
+            self.indices.extend(sampled)
+            self.targets.extend([cls]*len(sampled))
     def __len__(self):
         return len(self.indices)
 

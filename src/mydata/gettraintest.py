@@ -12,7 +12,8 @@ def get_data_loader(
     valid_aug:Callable,
     num_workers:int,
     batch_size:int,
-    test_size:float=0.1
+    seed:int,
+    test_size:float=0.1,
 )->Tuple[DataLoader,DataLoader]:
     trainset, valset = get_and_split(dataset, test_size)
 
@@ -27,7 +28,7 @@ def get_data_loader(
         base_dataset=trainset,
         min_samples=min_samples,
         minority_classes=minority_classes,
-        augmentations=train_aug
+        augmentations=train_aug,seed=seed
     )
 
    
