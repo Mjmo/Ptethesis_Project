@@ -91,7 +91,8 @@ def run_expirement(
     save_path: str = None,
     mlflow_logging: bool = True
 ):
-    
+    if mlflow.active_run():
+        mlflow.end_run()
     mlflow.set_experiment(experiment_name=expirement_name)
     mlflow.log_params(flatted_data_class(params))
     with mlflow.start_run():
