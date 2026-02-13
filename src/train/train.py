@@ -94,8 +94,9 @@ def run_expirement(
     if mlflow.active_run():
         mlflow.end_run()
     mlflow.set_experiment(experiment_name=expirement_name)
-    mlflow.log_params(flatted_data_class(params))
+  
     with mlflow.start_run():
+        mlflow.log_params(flatted_data_class(params))
         history=train_model(model,train_loader,val_loader,criterion,optimizer,scheduler,num_epochs,device,save_path,mlflow_logging)
 
 def train_model(model:nn.Module,train_loader:torch.utils.data.DataLoader,val_loader:torch.utils.data.DataLoader,critreon:nn.Module,
