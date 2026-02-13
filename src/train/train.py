@@ -76,7 +76,7 @@ def flatted_data_class(dc):
                 flattend[f"{key}.{sub_key}"]=sub_value
         else:
             flattend[key]=value
-
+    return flattend
 def run_expirement(
     model: nn.Module,
     expirement_name:str,
