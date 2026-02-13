@@ -1,6 +1,6 @@
-import torch as nn
-import tqdm
 import torch
+import tqdm
+import torch.nn as nn
 import mlflow
 from dataclasses import asdict
 from config.expiremntconfig import ExpirementConfig
