@@ -46,7 +46,7 @@ def train_model(
     model.to(device)
     history={"train_loss":[],"train_acc":[],"val_loss":[],"val_acc":[]}
     best_val_loss=float("inf")
-    for i in tqdm.tqdm(range(num_epochs),desc=f"Training the model in epoch {i+1}/{num_epochs}"):
+    for i in tqdm.tqdm(range(num_epochs), desc="Training the model"):
         train_loss,train_acc=train_one_epoch(model,train_loader,optimizer,criterion,device)
         val_loss,val_acc=evaluate_one_epoch(model,val_loader,criterion,device,i+1)
         history["train_loss"].append(train_loss)
