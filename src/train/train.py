@@ -20,7 +20,8 @@ def train_one_epoch(model:nn.Module,loader:torch.utils.data.DataLoader,optimizer
 @torch.no_grad()
 def evaluate_one_epoch(model:nn.Module,loader:torch.utils.data.DataLoader,criterion:nn.Module,device:torch.device,epoch:int):
     model.eval()
-    val_loss=0.0,val_correct=0
+    val_loss=0.0
+    val_correct=0
     for x,y in tqdm.tqdm(loader,desc=f"validating epoch{epoch}"):
         x,y=x.to(device),y.to(device)
         out=model(x)
