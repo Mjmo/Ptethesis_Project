@@ -7,7 +7,7 @@ import tqdm
 import torch.nn.functional as F
 from sklearn.metrics import accuracy_score
 from torch.utils.data import dataloader
-
+from sklearn.metrics import classification_report
 def plot_confusion_matrix(labels,preds,class_names=None,normalize=True,figsize=(6,5)):
     cm=confusion_matrix(labels,preds)
     if normalize:
@@ -60,3 +60,7 @@ def validate_multiclass(model:torch.nn.Module, dataloader:dataloader, criterion:
     val_acc = accuracy_score(all_labels, all_preds)
 
     return val_loss, val_acc, all_labels, all_preds
+def print_classification_report(labels,preds,class_names):
+    labels = list(range(40))
+    report = classification_report(labels, preds,zero_division=True,target_names=class_names,labels=labels)
+    print(report)
