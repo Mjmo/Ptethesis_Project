@@ -97,3 +97,4 @@ def run_expirement(
     with mlflow.start_run(nested=bool(mlflow.active_run())):
         mlflow.log_params(flatted_data_class(params))
         history=train_model(model,train_loader,val_loader,criterion,optimizer,scheduler,num_epochs,device,save_path,mlflow_logging)
+        return history

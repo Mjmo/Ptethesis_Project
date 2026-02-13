@@ -12,7 +12,7 @@ def plot_confusion_matrix(labels,preds,class_names=None,normalize=True,figsize=(
     cm=confusion_matrix(labels,preds)
     if normalize:
         cm_to_plot=cm.astype("float")/cm.sum(axis=1)[:,np.newaxis]
-        fmt='.2f'
+        fmt='.3f'
     else:
         cm_to_plot=cm
         fmt='d'
