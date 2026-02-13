@@ -22,6 +22,18 @@ def plot_confusion_matrix(labels,preds,class_names=None,normalize=True,figsize=(
     plt.ylabel("true")
     plt.title("Confusion MAtrix")
     plt.show()
+def plot_learning_curve(history:dict):
+    epochs=range(1,len(history["train_loss"]+1))
+    plt.figure()
+    plt.plot(epochs,history["train_loss"],label="Train_loss")
+    plt.plot(epochs,history["val_loss"],label="Validation loss")
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.xticks(list(epochs))
+    plt.legend()
+    plt.title("Learning Loss")
+    plt.show()
+
 def validate_multiclass(model:torch.nn.Module, dataloader:dataloader, criterion:torch.nn.Module, device:dataloader):
     model.eval()
 

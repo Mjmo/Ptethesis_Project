@@ -7,3 +7,4 @@ pytest
 scikit-learn
 tqdm
 seaborn
+mlflow

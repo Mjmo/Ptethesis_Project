@@ -1,5 +1,6 @@
 import torch
 from collections import Counter
+import mlflow
 def freeze_all_layers(
     model: torch.nn.Module,
     n: int,
@@ -36,3 +37,5 @@ def compute_class_weights(dataset:torch.utils.data.Dataset):
     class_weights = total / counts.float()
 
     return class_weights
+def initate_mlflow(path):
+    mlflow.set_tracking_uri(path)
