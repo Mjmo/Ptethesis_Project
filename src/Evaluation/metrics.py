@@ -4,20 +4,21 @@ import seaborn as sns
 import numpy as np
 import torch
 import tqdm
+import torch.nn as nn 
 import torch.nn.functional as F
 from sklearn.metrics import accuracy_score
+import torchvision.transforms as transforms
 from torch.utils.data import dataloader
 from sklearn.metrics import classification_report
+
 def plot_confusion_matrix(labels,preds,class_names=None,normalize=True,figsize=(6,5)):
     cm=confusion_matrix(labels,preds)
     if normalize:
         cm_to_plot=cm.astype("float")/cm.sum(axis=1)[:,np.newaxis]
-        fmt='.3f'
     else:
         cm_to_plot=cm
-        fmt='d'
     plt.figure(figsize=figsize)
-    sns.heatmap(cm_to_plot,annot=True,fmt=fmt,xticklabels=class_names,yticklabels=class_names)
+    sns.heatmap(cm_to_plot,annot=True,xticklabels=class_names,yticklabels=class_names)
     plt.xlabel("predicted")
     plt.ylabel("true")
     plt.title("Confusion MAtrix")
@@ -64,3 +65,29 @@ def print_classification_report(labels,preds,class_names):
     labels = list(range(40))
     report = classification_report(labels, preds,zero_division=True,target_names=class_names,labels=labels)
     print(report)
+def show_misclassfied(model:nn.Module,dataloader:torch.utils.data.DataLoader,classes:list[str],device:torch.device,num_images:int=10):
+    model.eval()
+    misclassified_images=[]
+    mis_classified_labels=[]
+    misclassified_preds=[]
+    for images,labels in tqdm.tqdm(dataloader):
+        images,labels=images.to(device),labels.to(device)
+        outputs=model(images)
+        _,preds=torch.max(outputs,1)
+        mis_idx = (preds != labels).nonzero(as_tuple=False).squeeze()
+        if mis_idx.numel() == 0:
+            continue
+        for id in mis_idx:
+            misclassified_images.append(images[id].cpu())
+            mis_classified_labels.append(labels[id].cpu())
+            misclassified_preds.append(preds[id])
+            if(len(mis_classified_labels))>=num_images:
+                break
+        if len(mis_classified_labels)>=num_images:
+            break
+    for i in range(len(mis_classified_labels)):
+        npimg=misclassified_images[i].numpy() 
+        plt.imshow(np.transpose(npimg, (1, 2, 0)))
+        plt.title(f"Predicted as {classes[misclassified_preds[i]]} True {classes[mis_classified_labels[i]]}")
+        plt.axis('off')
+
