@@ -10,7 +10,6 @@ from sklearn.metrics import accuracy_score
 import torchvision.transforms as transforms
 from torch.utils.data import dataloader
 from sklearn.metrics import classification_report
-
 def plot_confusion_matrix(labels,preds,class_names=None,normalize=True,figsize=(6,5)):
     cm=confusion_matrix(labels,preds)
     if normalize:
@@ -88,6 +87,6 @@ def show_misclassfied(model:nn.Module,dataloader:torch.utils.data.DataLoader,cla
     for i in range(len(mis_classified_labels)):
         npimg=misclassified_images[i].numpy() 
         plt.imshow(np.transpose(npimg, (1, 2, 0)))
-        plt.title(f"Predicted as {classes[misclassified_preds[i]]} True {classes[mis_classified_labels[i]]}")
+        plt.title(f"Predicted as {classes[misclassified_preds[i].item()]} True {classes[mis_classified_labels[i].item()]}")
         plt.axis('off')
 
