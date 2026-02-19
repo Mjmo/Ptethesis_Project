@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from sklearn.metrics import accuracy_score
 import torchvision.transforms as transforms
+import math
 from torch.utils.data import dataloader
 from sklearn.metrics import classification_report
 def plot_confusion_matrix(labels,preds,class_names=None,normalize=True,figsize=(6,5)):
@@ -66,27 +67,45 @@ def print_classification_report(labels,preds,class_names):
     print(report)
 def show_misclassfied(model:nn.Module,dataloader:torch.utils.data.DataLoader,classes:list[str],device:torch.device,num_images:int=10):
     model.eval()
-    misclassified_images=[]
-    mis_classified_labels=[]
-    misclassified_preds=[]
-    for images,labels in tqdm.tqdm(dataloader):
-        images,labels=images.to(device),labels.to(device)
-        outputs=model(images)
-        _,preds=torch.max(outputs,1)
-        mis_idx = (preds != labels).nonzero(as_tuple=False).squeeze()
-        if mis_idx.numel() == 0:
-            continue
-        for id in mis_idx:
-            misclassified_images.append(images[id].cpu())
-            mis_classified_labels.append(labels[id].cpu())
-            misclassified_preds.append(preds[id])
-            if(len(mis_classified_labels))>=num_images:
+    misclassified_images = []
+    misclassified_labels = []
+    misclassified_preds = []
+
+    # Collect misclassified images
+    with torch.no_grad():
+        for images, labels in tqdm.tqdm(dataloader):
+            images, labels = images.to(device), labels.to(device)
+            outputs = model(images)
+            _, preds = torch.max(outputs, 1)
+            mis_idx = (preds != labels).nonzero(as_tuple=False).squeeze()
+
+            if mis_idx.numel() == 0:
+                continue
+
+            for idx in mis_idx:
+                misclassified_images.append(images[idx].cpu())
+                misclassified_labels.append(labels[idx].cpu())
+                misclassified_preds.append(preds[idx].cpu())
+                if len(misclassified_labels) >= num_images:
+                    break
+            if len(misclassified_labels) >= num_images:
                 break
-        if len(mis_classified_labels)>=num_images:
-            break
-    for i in range(len(mis_classified_labels)):
-        npimg=misclassified_images[i].numpy() 
+
+        if len(misclassified_labels) == 0:
+            print("No misclassified images found!")
+            return
+
+    # Determine grid size
+    cols = 5
+    rows = math.ceil(len(misclassified_labels) / cols)
+    plt.figure(figsize=(4*cols, 4*rows))
+
+    for i in range(len(misclassified_labels)):
+        npimg = misclassified_images[i].numpy()
+        plt.subplot(rows, cols, i+1)
         plt.imshow(np.transpose(npimg, (1, 2, 0)))
-        plt.title(f"Predicted as {classes[misclassified_preds[i].item()]} True {classes[mis_classified_labels[i].item()]}")
+        plt.title(f"Predicted: {classes[misclassified_preds[i].item()]} | T: {classes[misclassified_labels[i].item()]}")
         plt.axis('off')
 
+    plt.tight_layout()
+    plt.show()
