@@ -95,17 +95,10 @@ def show_misclassfied(model:nn.Module,dataloader:torch.utils.data.DataLoader,cla
             print("No misclassified images found!")
             return
 
-    # Determine grid size
-    cols = 5
-    rows = math.ceil(len(misclassified_labels) / cols)
-    plt.figure(figsize=(4*cols, 4*rows))
-
     for i in range(len(misclassified_labels)):
         npimg = misclassified_images[i].numpy()
-        plt.subplot(rows, cols, i+1)
+        plt.figure(figsize=(4, 4))
         plt.imshow(np.transpose(npimg, (1, 2, 0)))
-        plt.title(f"Predicted: {classes[misclassified_preds[i].item()]} | T: {classes[misclassified_labels[i].item()]}")
+        plt.title(f"Predicted: {classes[misclassified_preds[i].item()]} | True: {classes[misclassified_labels[i].item()]}")
         plt.axis('off')
-
-    plt.tight_layout()
-    plt.show()
+        plt.show()
