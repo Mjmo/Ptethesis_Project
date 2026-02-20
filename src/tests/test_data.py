@@ -1,12 +1,18 @@
 import pytest
 from mydata.gettraintest import get_data_loader, get_dataset
+import yaml
+config=None
+with open("Ptethesis_Project\src\configs\expiremnt_config.yaml","r") as f:
+    config=yaml.safe_load(f)
+    
 
 @pytest.mark.parametrize(
     "folder_path,batchsize,testsize,minsamples",
     [
-        ("/content/drive/MyDrive/IOW_annotated_images_202601", 8, 0.2, 50),
-        ("/content/drive/MyDrive/IOW_annotated_images_202601", 16, 0.3, 100),
-        ("/content/drive/MyDrive/IOW_annotated_images_202601", 32, 0.4, 120),
+        (config["data"].train_data_path, 8, 0.2, 50),
+        (config["data"].train_data_path, 16, 0.3, 100),
+        (config["data"].train_data_path, 32, 0.4, 120),
+        (config["data"].train_data_path, 128, 0.2, 200),
     ]
 )
 def test_data_leakage(folder_path, batchsize, testsize, minsamples):
