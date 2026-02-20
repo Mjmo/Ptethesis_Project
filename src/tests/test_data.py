@@ -2,7 +2,7 @@ import pytest
 from mydata.gettraintest import get_data_loader, get_dataset
 import yaml
 config=None
-with open("../configs/expiremnt_config.yaml","r") as f:
+with open("Ptethesis_Project/src/configs/expiremnt_config.yaml","r") as f:
     config=yaml.safe_load(f)
     
 
