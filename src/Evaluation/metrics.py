@@ -11,6 +11,9 @@ import torchvision.transforms as transforms
 import math
 from torch.utils.data import dataloader
 from sklearn.metrics import classification_report
+import torch
+import matplotlib.pyplot as plt
+from sklearn.metrics import precision_recall_curve, average_precision_score
 def plot_confusion_matrix(labels,preds,class_names=None,normalize=True,figsize=(6,5)):
     cm=confusion_matrix(labels,preds)
     if normalize:
@@ -102,3 +105,35 @@ def show_misclassfied(model:nn.Module,dataloader:torch.utils.data.DataLoader,cla
         plt.title(f"Predicted: {classes[misclassified_preds[i].item()]} | True: {classes[misclassified_labels[i].item()]}")
         plt.axis('off')
         plt.show()
+
+def plot_multiclass_pr(y_true, y_probs, class_names=None):
+    """
+    Plot Precision-Recall curves for multi-class classification.
+
+    Parameters:
+    - y_true: torch.Tensor of shape (N,) with class indices
+    - y_probs: torch.Tensor of shape (N, C) with probabilities (softmax outputs)
+    - class_names: list of class names (length C)
+    """
+    num_classes = y_probs.shape[1]
+    
+    # Convert true labels to one-hot
+    y_true_onehot = torch.nn.functional.one_hot(y_true, num_classes=num_classes)
+    
+    plt.figure(figsize=(10,8))
+    
+    for i in range(num_classes):
+        # Compute PR curve
+        precision, recall, _ = precision_recall_curve(y_true_onehot[:,i].numpy(), y_probs[:,i].detach().numpy())
+        # Compute Average Precision (AP)
+        ap = average_precision_score(y_true_onehot[:,i].numpy(), y_probs[:,i].detach().numpy())
+        label = f'{class_names[i]} (AP={ap:.2f})' if class_names else f'Class {i} (AP={ap:.2f})'
+        plt.plot(recall, precision, lw=2, label=label)
+    
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title('Precision-Recall Curve (Multi-class)')
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
