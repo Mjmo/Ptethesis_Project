@@ -22,7 +22,8 @@ def implement_integrated(model: torch.nn.Module,
     ig = IntegratedGradients(model)
     nt = NoiseTunnel(ig)
     shown = 0
-
+    labels=[]
+    preds=[]    
     for batch_images, batch_labels in tqdm.tqdm(valid_loader):
 
         batch_images = batch_images.to(device)
@@ -35,37 +36,36 @@ def implement_integrated(model: torch.nn.Module,
 
             output = model(input_tensor)
             pred_class = torch.argmax(output, dim=1).item()
+            labels.append(class_names[batch_labels[i].item()])
+            preds.append(class_names[pred_class])
             true_class = batch_labels[i].item()
-
             attributions = nt.attribute(
-            input_tensor,
-            baselines=baseline,
-            target=pred_class,
-            nt_type='smoothgrad_sq',   # strongest smoothing
-            stdevs=0.02,
-            n_samples=25,
-            n_steps=200
-)
+                input_tensor,
+                baselines=baseline,
+                target=pred_class,
+                nt_type='smoothgrad_sq',
+                stdevs=0.02,
+             
+                n_steps=200
+            )
+
             attr = attributions.squeeze().cpu().detach().numpy()
-            attr = np.mean(attr, axis=0)
-            attr = np.maximum(attr, 0)  # keep only positive
+            attr = np.transpose(attr, (1, 2, 0))
+            attr = np.maximum(attr, 0)
             attr = attr / (attr.max() + 1e-8)
+
             original_img = input_tensor.squeeze().cpu().detach().numpy()
             original_img = np.transpose(original_img, (1, 2, 0))
 
             viz.visualize_image_attr(
-            attr,
-            original_img,
-            method="blended_heat_map",
-            cmap="inferno",
-            alpha_overlay=0.6,
-            show_colorbar=True)
-
-            plt.title(
-                f"Predicted: {class_names[pred_class]} | "
-                f"True: {class_names[true_class]}"
+                attr,
+                original_img,
+                method="blended_heat_map",
+                cmap="inferno",
+                alpha_overlay=0.6,
+                show_colorbar=True,title=f"True Class: {class_names[true_class]}\nPredicted Class: {class_names[pred_class]}"
             )
-
+          
             plt.show()
 
             shown += 1
