@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
-from captum.attr import IntegratedGradients
+from captum.attr import IntegratedGradients,NoiseTunnel
 from captum.attr import visualization as viz
 import tqdm
 def implement_integrated(model: torch.nn.Module,
@@ -20,7 +20,7 @@ def implement_integrated(model: torch.nn.Module,
     model.to(device)
 
     ig = IntegratedGradients(model)
-
+    nt = NoiseTunnel(ig)
     shown = 0
 
     for batch_images, batch_labels in tqdm.tqdm(valid_loader):
@@ -37,28 +37,29 @@ def implement_integrated(model: torch.nn.Module,
             pred_class = torch.argmax(output, dim=1).item()
             true_class = batch_labels[i].item()
 
-            attributions, delta = ig.attribute(
-                input_tensor,
-                baseline,
-                target=pred_class,
-                return_convergence_delta=True
-            )
-
-            # Convert attribution → numpy (HWC)
+            attributions = nt.attribute(
+            input_tensor,
+            baselines=baseline,
+            target=pred_class,
+            nt_type='smoothgrad_sq',   # strongest smoothing
+            stdevs=0.02,
+            n_samples=25,
+            n_steps=200
+)
             attr = attributions.squeeze().cpu().detach().numpy()
-            attr = np.transpose(attr, (1, 2, 0))
-
-            # Convert image → numpy (HWC)
+            attr = np.mean(attr, axis=0)
+            attr = np.maximum(attr, 0)  # keep only positive
+            attr = attr / (attr.max() + 1e-8)
             original_img = input_tensor.squeeze().cpu().detach().numpy()
             original_img = np.transpose(original_img, (1, 2, 0))
 
             viz.visualize_image_attr(
-                attr,
-                original_img,
-                method="blended_heat_map",
-                sign="positive",
-                show_colorbar=True
-            )
+            attr,
+            original_img,
+            method="blended_heat_map",
+            cmap="inferno",
+            alpha_overlay=0.6,
+            show_colorbar=True)
 
             plt.title(
                 f"Predicted: {class_names[pred_class]} | "
