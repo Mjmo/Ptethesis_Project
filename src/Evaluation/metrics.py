@@ -137,7 +137,8 @@ def plot_multiclass_pr(y_true, y_probs, class_names=None):
     plt.grid(True)
     plt.tight_layout()
     plt.show(  )
-    def plot_comparison_matrix(cm,y_true,y_preds,true_names,pred_names,figure_size=(20,20)):
+    
+def plot_comparison_matrix(cm,y_true,y_preds,true_names,pred_names,figure_size=(20,20)):
         cm=confusion_matrix(y_true,y_preds,normalize=True)
         plt.figure(figsize=figure_size)
         sns.heatmap(cm,annot=True,xticklabels=pred_names,yticklabels=true_names)
@@ -145,4 +146,3 @@ def plot_multiclass_pr(y_true, y_probs, class_names=None):
         plt.ylabel("Predicted name")
         plt.title("Testing orginal model on our data")
         plt.show()
-        
