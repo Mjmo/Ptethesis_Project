@@ -33,7 +33,7 @@ def implement_integrated(model: torch.nn.Module,
 
             input_tensor = batch_images[i].unsqueeze(0)
             baseline = torch.zeros_like(input_tensor)
-
+            print(input_tensor.min().item(), input_tensor.max().item())
             output = model(input_tensor)
             pred_class = torch.argmax(output, dim=1).item()
             labels.append(class_names[batch_labels[i].item()])
@@ -43,7 +43,7 @@ def implement_integrated(model: torch.nn.Module,
                 input_tensor,
                 baselines=baseline,
                 target=pred_class,
-                nt_type='smoothgrad_sq',
+                nt_type='smoothgrad',
                 stdevs=0.02,
              
                 n_steps=200
@@ -51,9 +51,7 @@ def implement_integrated(model: torch.nn.Module,
 
             attr = attributions.squeeze().cpu().detach().numpy()
             attr = np.transpose(attr, (1, 2, 0))
-            attr = np.maximum(attr, 0)
-            attr = attr / (attr.max() + 1e-8)
-
+            attr = attr / (np.abs(attr).max() + 1e-8)
             original_img = input_tensor.squeeze().cpu().detach().numpy()
             original_img = np.transpose(original_img, (1, 2, 0))
 
