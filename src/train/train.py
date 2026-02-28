@@ -84,6 +84,7 @@ def flatted_data_class(dc):
 def run_expirement(
     model: nn.Module,
     expirement_name:str,
+    class_names:list[str],
     train_loader: torch.utils.data.DataLoader,
     params:ExpirementConfig,
     val_loader: torch.utils.data.DataLoader,
@@ -93,7 +94,8 @@ def run_expirement(
     num_epochs: int = 10,
     device: torch.device = torch.device("cuda"),
     save_path: str = None,
-    mlflow_logging: bool = True
+    mlflow_logging: bool = True,
+
 ):
 
     mlflow.set_experiment(experiment_name=expirement_name) 
@@ -103,7 +105,7 @@ def run_expirement(
         plot_learning_curve(history,"plots/curve.png",False)
         mlflow.log_artifact("plots/curve.png","plots")
         val_loss, val_acc, all_labels, all_preds=validate_multiclass(model,val_loader,criterion,device)
-        save_classification_report(all_labels,all_preds,train_loader.dataset.classes,save_path="plots/classification_report.txt")
+        save_classification_report(all_labels,all_preds,class_names,save_path="plots/classification_report.txt")
         mlflow.log_artifact("plots/classification_report.txt","plots")
         
         return history
