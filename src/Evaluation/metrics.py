@@ -13,7 +13,7 @@ from torch.utils.data import dataloader
 from sklearn.metrics import classification_report
 import torch
 import matplotlib.pyplot as plt
-def plot_confusion_matrix(labels,preds,class_names=None,normalize=True,figsize=(6,5),savepath="",show=False):
+def plot_confusion_matrix(labels,preds,class_names=None,normalize="true",figsize=(6,5),savepath="",show=False):
     cm=confusion_matrix(labels,preds,normalize=normalize)
     plt.figure(figsize=figsize)
     sns.heatmap(cm,annot=True,xticklabels=class_names,yticklabels=class_names)
