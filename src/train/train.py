@@ -101,9 +101,9 @@ def run_expirement(
         mlflow.log_params(flatted_data_class(params))
         history=train_model(model,train_loader,val_loader,criterion,optimizer,scheduler,num_epochs,device,save_path,mlflow_logging)
         plot_learning_curve(history,"plots/curve.png",False)
-        mlflow.log_artifact("curve.png","plots")
+        mlflow.log_artifact("plots/curve.png","plots")
         val_loss, val_acc, all_labels, all_preds=validate_multiclass(model,val_loader,criterion,device)
         save_classification_report(all_labels,all_preds,train_loader.dataset.classes,save_path="plots/classification_report.txt")
-        mlflow.log_artifact("classification_report.txt","plots")
+        mlflow.log_artifact("plots/classification_report.txt","plots")
         
         return history
