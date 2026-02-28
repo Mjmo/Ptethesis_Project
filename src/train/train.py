@@ -4,17 +4,20 @@ import torch.nn as nn
 import mlflow
 from dataclasses import asdict
 from config.expiremntconfig import ExpirementConfig
+from Evaluation.metrics import plot_learning_curve
+from Evaluation.metrics import validate_multiclass
+from Evaluation.metrics import plot_confusion_matrix,save_classification_report
 def train_one_epoch(model:nn.Module,loader:torch.utils.data.DataLoader,optimizer:torch.optim.Optimizer,criterion:nn.Module,device:torch.device):
     model.train()
     loss_sum,correct=0.0,0
-    for x,y in tqdm.tqdm(loader):
+    for x,y in tqdm.tqdm(loader,desc="Training batch"):
         x,y=x.to(device),y.to(device)
         optimizer.zero_grad()
         out=model(x)
         loss=criterion(out,y)
         loss.backward()
         optimizer.step()
-        loss_sum+=loss.item()
+        loss_sum+=loss.item()*x.size(0)
         correct += (out.argmax(1) == y).sum().item()
     return (loss_sum/len(loader.dataset),correct/len(loader.dataset))
 @torch.no_grad()
@@ -63,7 +66,7 @@ def train_model(
             mlflow.log_metric("train_loss", train_loss, step=i+1)
             mlflow.log_metric("validation_accuracy", val_acc, step=i+1)
             mlflow.log_metric("validation_loss", val_loss, step=i+1)
-        if val_loss <best_val_loss:
+        if save_path and val_loss <best_val_loss:
             best_val_loss=val_loss
             torch.save(model.state_dict(),save_path)
             print(f"Saving the model in epoch {i+1}")
@@ -97,4 +100,10 @@ def run_expirement(
     with mlflow.start_run(nested=bool(mlflow.active_run())):
         mlflow.log_params(flatted_data_class(params))
         history=train_model(model,train_loader,val_loader,criterion,optimizer,scheduler,num_epochs,device,save_path,mlflow_logging)
+        plot_learning_curve(history,"plots/curve.png",False)
+        mlflow.log_artifact("curve.png","plots")
+        val_loss, val_acc, all_labels, all_preds=validate_multiclass(model,val_loader,criterion,device)
+        save_classification_report(all_labels,all_preds,train_loader.dataset.classes,save_path="plots/classification_report.txt")
+        mlflow.log_artifact("classification_report.txt","plots")
+        
         return history

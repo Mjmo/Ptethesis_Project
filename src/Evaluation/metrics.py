@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from sklearn.metrics import accuracy_score
 import torchvision.transforms as transforms
-import math
+import os
 from torch.utils.data import dataloader
 from sklearn.metrics import classification_report
 import torch
@@ -26,19 +26,13 @@ def plot_confusion_matrix(labels,preds,class_names=None,normalize=True,figsize=(
     plt.ylabel("true")
     plt.title("Confusion MAtrix")
     plt.show()
-def plot_learning_curve(history:dict):
-    epochs=range(1,len(history["train_loss"]+1))
-    plt.figure()
-    plt.plot(epochs,history["train_loss"],label="Train_loss")
-    plt.plot(epochs,history["val_loss"],label="Validation loss")
-    plt.xlabel("Epochs")
-    plt.ylabel("Loss")
-    plt.xticks(list(epochs))
-    plt.legend()
-    plt.title("Learning Loss")
-    plt.show()
 
-def validate_multiclass(model:torch.nn.Module, dataloader:dataloader, criterion:torch.nn.Module, device:dataloader):
+def validate_multiclass(
+    model: torch.nn.Module,
+    dataloader: torch.utils.data.DataLoader,
+    criterion: torch.nn.Module,
+    device: torch.device
+):
     model.eval()
 
     val_loss = 0.0
@@ -46,35 +40,29 @@ def validate_multiclass(model:torch.nn.Module, dataloader:dataloader, criterion:
     all_labels = []
 
     with torch.no_grad():
-        for inputs, labels in tqdm.tqdm(dataloader):
+        for inputs, labels in tqdm.tqdm(dataloader, desc="Validating"):
             inputs = inputs.to(device)
             labels = labels.to(device)
 
             logits = model(inputs)
             loss = criterion(logits, labels)
 
-            val_loss += loss.item()
+            val_loss += loss.item() * inputs.size(0) 
 
             preds = torch.argmax(logits, dim=1)
-
             all_preds.extend(preds.cpu().numpy())
             all_labels.extend(labels.cpu().numpy())
 
-    val_loss /= len(dataloader)
+    val_loss /= len(dataloader.dataset)  
     val_acc = accuracy_score(all_labels, all_preds)
 
     return val_loss, val_acc, all_labels, all_preds
-def print_classification_report(labels,preds,class_names):
-    labels = list(range(40))
-    report = classification_report(labels, preds,zero_division=True,target_names=class_names,labels=labels)
-    print(report)
 def show_misclassfied(model:nn.Module,dataloader:torch.utils.data.DataLoader,classes:list[str],device:torch.device,num_images:int=10):
     model.eval()
     misclassified_images = []
     misclassified_labels = []
     misclassified_preds = []
 
-    # Collect misclassified images
     with torch.no_grad():
         for images, labels in tqdm.tqdm(dataloader):
             images, labels = images.to(device), labels.to(device)
@@ -105,44 +93,45 @@ def show_misclassfied(model:nn.Module,dataloader:torch.utils.data.DataLoader,cla
         plt.title(f"Predicted: {classes[misclassified_preds[i].item()]} | True: {classes[misclassified_labels[i].item()]}")
         plt.axis('off')
         plt.show()
+def plot_learning_curve(history: dict, save_path: str = None, show: bool = True):
 
-def plot_multiclass_pr(y_true, y_probs, class_names=None):
-    """
-    Plot Precision-Recall curves for multi-class classification.
+    epochs = range(1, len(history['train_loss']) + 1)
 
-    Parameters:
-    - y_true: torch.Tensor of shape (N,) with class indices
-    - y_probs: torch.Tensor of shape (N, C) with probabilities (softmax outputs)
-    - class_names: list of class names (length C)
-    """
-    num_classes = y_probs.shape[1]
-    
-    # Convert true labels to one-hot
-    y_true_onehot = torch.nn.functional.one_hot(y_true, num_classes=num_classes)
-    
-    plt.figure(figsize=(10,8))
-    
-    for i in range(num_classes):
-        # Compute PR curve
-        precision, recall, _ = precision_recall_curve(y_true_onehot[:,i].numpy(), y_probs[:,i].detach().numpy())
-        # Compute Average Precision (AP)
-        ap = average_precision_score(y_true_onehot[:,i].numpy(), y_probs[:,i].detach().numpy())
-        label = f'{class_names[i]} (AP={ap:.2f})' if class_names else f'Class {i} (AP={ap:.2f})'
-        plt.plot(recall, precision, lw=2, label=label)
-    
-    plt.xlabel('Recall')
-    plt.ylabel('Precision')
-    plt.title('Precision-Recall Curve (Multi-class)')
-    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
-    plt.grid(True)
+    fig, axs = plt.subplots(1, 2, figsize=(14, 5))
+
+    axs[0].plot(epochs, history['train_loss'], 'o-', label='Train Loss')
+    axs[0].plot(epochs, history['val_loss'], 's-', label='Validation Loss')
+    axs[0].set_title("Loss over Epochs")
+    axs[0].set_xlabel("Epoch")
+    axs[0].set_ylabel("Loss")
+    axs[0].legend()
+    axs[0].grid(True)
+
+    axs[1].plot(epochs, history['train_acc'], 'o-', label='Train Accuracy')
+    axs[1].plot(epochs, history['val_acc'], 's-', label='Validation Accuracy')
+    axs[1].set_title("Accuracy over Epochs")
+    axs[1].set_xlabel("Epoch")
+    axs[1].set_ylabel("Accuracy")
+    axs[1].legend()
+    axs[1].grid(True)
+
     plt.tight_layout()
-    plt.show(  )
-    
-def plot_comparison_matrix(y_true,y_preds,true_names,pred_names,figure_size=(20,20)):
-        cm=confusion_matrix(y_true,y_preds,normalize="true")
-        plt.figure(figsize=figure_size)
-        sns.heatmap(cm,annot=True,xticklabels=pred_names,yticklabels=true_names)
-        plt.xlabel("True labels")
-        plt.ylabel("Predicted name")
-        plt.title("Testing orginal model on our data")
+
+    if save_path:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        plt.savefig(save_path)
+
+    if show:
         plt.show()
+    
+    plt.close(fig)
+
+def save_classification_report(y_true, y_pred, class_names=None, save_path="classification_report.txt"):
+
+    report_str = classification_report(y_true, y_pred,labels=range(43) ,target_names=class_names)
+    
+    if save_path:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        with open(save_path, "w") as f:
+            f.write(report_str)
+    
