@@ -13,19 +13,18 @@ from torch.utils.data import dataloader
 from sklearn.metrics import classification_report
 import torch
 import matplotlib.pyplot as plt
-from sklearn.metrics import precision_recall_curve, average_precision_score
-def plot_confusion_matrix(labels,preds,class_names=None,normalize=True,figsize=(6,5)):
-    cm=confusion_matrix(labels,preds)
-    if normalize:
-        cm_to_plot=cm.astype("float")/cm.sum(axis=1)[:,np.newaxis]
-    else:
-        cm_to_plot=cm
+def plot_confusion_matrix(labels,preds,class_names=None,normalize=True,figsize=(6,5),savepath="",show=False):
+    cm=confusion_matrix(labels,preds,normalize=normalize)
     plt.figure(figsize=figsize)
-    sns.heatmap(cm_to_plot,annot=True,xticklabels=class_names,yticklabels=class_names)
+    sns.heatmap(cm,annot=True,xticklabels=class_names,yticklabels=class_names)
     plt.xlabel("predicted")
     plt.ylabel("true")
     plt.title("Confusion MAtrix")
-    plt.show()
+    if show:
+        plt.show()
+    if savepath:
+        os.makedirs(os.path.dirname(savepath), exist_ok=True)
+        plt.savefig(savepath)
 
 def validate_multiclass(
     model: torch.nn.Module,
@@ -134,4 +133,4 @@ def save_classification_report(y_true, y_pred, class_names=None, save_path="clas
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         with open(save_path, "w") as f:
             f.write(report_str)
-    
+    return report_str
