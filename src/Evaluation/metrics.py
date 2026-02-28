@@ -13,18 +13,18 @@ from torch.utils.data import dataloader
 from sklearn.metrics import classification_report
 import torch
 import matplotlib.pyplot as plt
-def plot_confusion_matrix(labels,preds,class_names=None,normalize="true",figsize=(6,5),savepath="",show=False):
-    cm=confusion_matrix(labels,preds,normalize=normalize)
+def plot_confusion_matrix(labels,preds,class_names=None,normalize="true",figsize=(20,20),savepath="",show=False):
+    cm=confusion_matrix(labels,preds,normalize=normalize,labels=range(43))
     plt.figure(figsize=figsize)
     sns.heatmap(cm,annot=True,xticklabels=class_names,yticklabels=class_names)
     plt.xlabel("predicted")
     plt.ylabel("true")
     plt.title("Confusion MAtrix")
-    if show:
-        plt.show()
     if savepath:
         os.makedirs(os.path.dirname(savepath), exist_ok=True)
         plt.savefig(savepath)
+    if show:
+        plt.show()
 
 def validate_multiclass(
     model: torch.nn.Module,

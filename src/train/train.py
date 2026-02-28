@@ -107,6 +107,6 @@ def run_expirement(
         val_loss, val_acc, all_labels, all_preds=validate_multiclass(model,val_loader,criterion,device)
         save_classification_report(all_labels,all_preds,class_names,save_path="plots/classification_report.txt")
         mlflow.log_artifact("plots/classification_report.txt","plots")
-        plot_confusion_matrix(all_labels,all_preds,class_names=class_names,show=False,savepath="plots/confusion_matrix.png")
+        plot_confusion_matrix(all_labels,all_preds,class_names=class_names,savepath="plots/confusion_matrix.png",figsize=(20,20))
         mlflow.log_artifact("plots/confusion_matrix.png","plots")
         return history

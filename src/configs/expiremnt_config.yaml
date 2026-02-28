@@ -10,7 +10,7 @@ model:
   dropout: 0.5
   num_classes: 43
 training:
-  num_epochs: 10
+  num_epochs: 20
   save_path: ""
   lr_head: 1e-3
   lr_base: 1e-4
