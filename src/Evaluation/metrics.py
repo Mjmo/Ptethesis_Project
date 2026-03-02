@@ -56,7 +56,11 @@ def validate_multiclass(
     val_acc = accuracy_score(all_labels, all_preds)
 
     return val_loss, val_acc, all_labels, all_preds
-def show_misclassfied(model:nn.Module,dataloader:torch.utils.data.DataLoader,classes:list[str],device:torch.device,num_images:int=10):
+def show_misclassified(model: nn.Module,
+                       dataloader: torch.utils.data.DataLoader,
+                       classes: list[str],
+                       device: torch.device,
+                       num_images: int = 10):
     model.eval()
     misclassified_images = []
     misclassified_labels = []
@@ -67,9 +71,9 @@ def show_misclassfied(model:nn.Module,dataloader:torch.utils.data.DataLoader,cla
             images, labels = images.to(device), labels.to(device)
             outputs = model(images)
             _, preds = torch.max(outputs, 1)
-            mis_idx = (preds != labels).nonzero(as_tuple=False).squeeze()
+            mis_idx = (preds != labels).nonzero(as_tuple=False).view(-1)
 
-            if mis_idx.numel() == 0:
+            if len(mis_idx) == 0:
                 continue
 
             for idx in mis_idx:
@@ -81,12 +85,15 @@ def show_misclassfied(model:nn.Module,dataloader:torch.utils.data.DataLoader,cla
             if len(misclassified_labels) >= num_images:
                 break
 
-        if len(misclassified_labels) == 0:
-            print("No misclassified images found!")
-            return
+    if len(misclassified_labels) == 0:
+        print("No misclassified images found!")
+        return
 
+    # Optionally handle normalization if images are normalized
     for i in range(len(misclassified_labels)):
-        npimg = misclassified_images[i].numpy()
+        img = misclassified_images[i]
+        npimg = img.numpy()
+        # If normalized, undo normalization here (optional)
         plt.figure(figsize=(4, 4))
         plt.imshow(np.transpose(npimg, (1, 2, 0)))
         plt.title(f"Predicted: {classes[misclassified_preds[i].item()]} | True: {classes[misclassified_labels[i].item()]}")
