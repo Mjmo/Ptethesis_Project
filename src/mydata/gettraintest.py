@@ -15,7 +15,7 @@ def get_data_loader(
     seed:int,
     test_size:float=0.1,
 )->Tuple[DataLoader,DataLoader]:
-    trainset, valset = get_and_split(dataset, test_size,seed=seed)
+    trainset, valset = get_and_split(dataset=dataset,seed=seed,testsize=test_size)
 
     train_targets = [trainset.dataset.targets[i] for i in trainset.indices]
 

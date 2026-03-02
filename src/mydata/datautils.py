@@ -14,7 +14,7 @@ random.seed(42)
     - Stratified splitting of the dataset into train and test so that the proportion of each
     class stays the same in trainset and in testset
     """
-def get_and_split(dataset:torch.utils.data.Dataset,seed:int ,testsize:float=0.2,)->Tuple[Subset,Subset]:
+def get_and_split(dataset:torch.utils.data.Dataset,seed:int,testsize:float=0.2,)->Tuple[Subset,Subset]:
     if not isinstance(dataset,ImageFolder):
         raise TypeError("We expects to get an Imagefolder")
     if hasattr(dataset,"targets"):
@@ -35,10 +35,7 @@ def get_and_split(dataset:torch.utils.data.Dataset,seed:int ,testsize:float=0.2,
     val_data   = Subset(dataset, val_idx)
 
     return train_data, val_data
-"""
-   Get classnames that have less samples than the threshold so we can augment 
-   the classes in the trainset who has few samples
-    """
+
 def get_minority_classes(targets:List[int], threshold:int=50)->List[int]:
     count = Counter(targets)
     return [cls for cls, n in count.items() if n < threshold]
