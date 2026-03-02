@@ -89,11 +89,10 @@ def show_misclassified(model: nn.Module,
         print("No misclassified images found!")
         return
 
-    # Optionally handle normalization if images are normalized
+    
     for i in range(len(misclassified_labels)):
         img = misclassified_images[i]
         npimg = img.numpy()
-        # If normalized, undo normalization here (optional)
         plt.figure(figsize=(4, 4))
         plt.imshow(np.transpose(npimg, (1, 2, 0)))
         plt.title(f"Predicted: {classes[misclassified_preds[i].item()]} | True: {classes[misclassified_labels[i].item()]}")
