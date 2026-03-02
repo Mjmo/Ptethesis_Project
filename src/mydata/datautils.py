@@ -14,7 +14,7 @@ random.seed(42)
     - Stratified splitting of the dataset into train and test so that the proportion of each
     class stays the same in trainset and in testset
     """
-def get_and_split(dataset:torch.utils.data.Dataset, testsize:float=0.2)->Tuple[Subset,Subset]:
+def get_and_split(dataset:torch.utils.data.Dataset,seed:int ,testsize:float=0.2,)->Tuple[Subset,Subset]:
     if not isinstance(dataset,ImageFolder):
         raise TypeError("We expects to get an Imagefolder")
     if hasattr(dataset,"targets"):
@@ -27,7 +27,7 @@ def get_and_split(dataset:torch.utils.data.Dataset, testsize:float=0.2)->Tuple[S
     targets_np = np.array(targets)
 
     splitter = StratifiedShuffleSplit(
-        n_splits=1, test_size=testsize, random_state=42
+        n_splits=1, test_size=testsize, random_state=seed
     )
     train_idx, val_idx = next(splitter.split(indices, targets_np))
 
@@ -47,7 +47,6 @@ class OversampledAugmentedDataset(Dataset):
         self.base_dataset = base_dataset
         self.augmentations = augmentations
         self.seed=seed
-        random.seed(self.seed)
         if isinstance(base_dataset, Subset):
             targets = [base_dataset.dataset.targets[i] for i in base_dataset.indices]
             original_indices = base_dataset.indices
@@ -64,7 +63,8 @@ class OversampledAugmentedDataset(Dataset):
         for cls, idxs in class_indices.items():
             if cls in minority_classes:
                 repeats = max(min_samples - len(idxs), 0)
-                sampled=idxs+random.choices(idxs,k=repeats)
+                rng = random.Random(self.seed)
+                sampled=idxs+rng.choices(idxs,k=repeats)
             else:
                 sampled=idxs
             self.indices.extend(sampled)

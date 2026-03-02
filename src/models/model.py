@@ -55,8 +55,7 @@ def loadpretrainedmodel(weights_path:str,device:torch.device)->torch.nn.Module:
 
 def build_mlp_head(
     dims,
-    dropout=0.5,
-    use_bn=True
+    dropout=0.5
 ):
     layers = []
 
@@ -65,12 +64,7 @@ def build_mlp_head(
         out_dim = dims[i + 1]
 
         layers.append(nn.Linear(in_dim, out_dim))
-
-        # Don't add BN/ReLU/Dropout after final layer
         if i < len(dims) - 2:
-            if use_bn:
-                layers.append(nn.BatchNorm1d(out_dim))
-            layers.append(nn.ReLU(inplace=True))
             if dropout > 0:
                 layers.append(nn.Dropout(dropout))
 
@@ -80,6 +74,5 @@ def addnewhead(model: nn.Module, dims: list[int], num_classes: int,
     in_features = model.head[0].in_features
 
     new_dims = [in_features] + dims + [num_classes]  
-
-    model.head = build_mlp_head(new_dims, dropout, use_bn)
+    model.head = build_mlp_head(new_dims, dropout)
     return model
