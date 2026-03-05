@@ -45,8 +45,8 @@ def implement_integrated(model: torch.nn.Module,
                 target=pred_class,
                 nt_type='smoothgrad',
                 stdevs=0.02,
-             
-                n_steps=200
+                nt_samples=10,
+               n_steps=200
             )
 
             attr = attributions.squeeze().cpu().detach().numpy()
